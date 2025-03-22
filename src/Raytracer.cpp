@@ -56,7 +56,7 @@ void Raytracer::run()
     auto material3 = std::make_shared<Metal>(Vec3(0.7f, 0.6f, 0.5f), 0.0f);
     world.add(std::make_shared<Sphere>(Vec3(4.0f, 1.0f, 0.0f), 1.0f, material3));
 
-    Camera camera(16.0f / 9.0f, 100, 100, 50);
+    Camera camera(100, 50);
     camera.vertical_fov = 20.0f;
     camera.look_from = Vec3(13.0f, 2.0f, 3.0f);
     camera.look_at = Vec3(0.0f, 0.0f, 0.0f);

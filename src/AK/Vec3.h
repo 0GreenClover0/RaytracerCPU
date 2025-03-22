@@ -44,6 +44,8 @@ public:
     Vec3& operator*=(float scalar);
 
     Vec3& operator/=(float scalar);
+
+    [[nodiscard]] std::string to_string() const;
 };
 
 inline Vec3 operator+(const Vec3& lhs, const Vec3& rhs)

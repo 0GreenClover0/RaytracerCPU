@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <fstream>
+#include <string>
 
 Vec3::Vec3(): x(0.0f), y(0.0f), z(0.0f)
 {}
@@ -91,6 +92,13 @@ Vec3 Vec3::refract(const Vec3& uv, const Vec3& n, float etai_over_etat)
     Vec3 r_out_perp = etai_over_etat * (uv + cos_theta * n);
     Vec3 r_out_parallel = -std::sqrt(std::fabs(1.0f - r_out_perp.length_squared())) * n;
     return r_out_perp + r_out_parallel;
+}
+
+std::string Vec3::to_string() const
+{
+    return std::to_string(static_cast<int>(255.999f * x)) + " "
+        + std::to_string(static_cast<int>(255.999f * y)) + " "
+        + std::to_string(static_cast<int>(255.999f * z)) + '\n';
 }
 
 Vec3& Vec3::operator+=(const Vec3& rhs)

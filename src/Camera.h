@@ -16,21 +16,22 @@ public:
     Vec3 look_at;
     Vec3 v_up;
 
-    Camera(const float aspect_ratio, const int image_width, const int samples_per_pixel, const int max_depth)
-        : look_from(Vec3()), look_at(Vec3(0.0f, 0.0f, -1.0f)), v_up(Vec3(0.0f, 1.0f, 0.0f)), m_aspect_ratio(aspect_ratio),
-          m_image_width(image_width), m_samples_per_pixel(samples_per_pixel), m_max_depth(max_depth)
+    Camera(const int samples_per_pixel, const int max_depth)
+        : look_from(Vec3()), look_at(Vec3(0.0f, 0.0f, -1.0f)), v_up(Vec3(0.0f, 1.0f, 0.0f)),
+          m_samples_per_pixel(samples_per_pixel), m_max_depth(max_depth)
     {
     }
 
     void render(const Hittable& world);
 
 private:
-    float m_aspect_ratio = 1.0f;
-    int m_image_width = 100;
+    static constexpr float m_aspect_ratio = 16.0f / 9.0f;
+    static constexpr int m_image_width = 512;
+    static constexpr int m_image_height = m_image_width / m_aspect_ratio;
+
     int m_samples_per_pixel = 50;
     int m_max_depth = 50;
 
-    int m_image_height = 0;
     float pixel_samples_scale = 1.0f;
     Vec3 center = {};
     Vec3 pixel00_location = {};
@@ -81,27 +82,4 @@ inline Ray Camera::get_ray(int i, int k) const
 inline Vec3 Camera::sample_square() const
 {
     return Vec3(random_float() - 0.5f, random_float() - 0.5f, 0.0f);
-}
-
-inline void Camera::render(const Hittable& world)
-{
-    initialize();
-
-    std::ofstream output("output.ppm");
-    output << "P3\n" << m_image_width << " " << m_image_height << "\n255\n";
-
-    for (int k = 0; k < m_image_height; ++k)
-    {
-        for (int i = 0; i < m_image_width; ++i)
-        {
-            Vec3 pixel_color;
-            for (int sample = 0; sample < m_samples_per_pixel; ++sample)
-            {
-                Ray ray = get_ray(i, k);
-                pixel_color += ray_color(ray, m_max_depth, world);
-            }
-
-            write_color(output, pixel_color * pixel_samples_scale);
-        }
-    }
 }

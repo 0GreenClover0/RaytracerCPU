@@ -1,10 +1,12 @@
 ﻿#include "Camera.h"
 
+#include <execution>
+#include <iostream>
+#include <ranges>
+#include <vector>
+
 void Camera::initialize()
 {
-    m_image_height = static_cast<int>(m_image_width / m_aspect_ratio);
-    m_image_height = std::max(m_image_height, 1);
-
     pixel_samples_scale = 1.0f / static_cast<float>(m_samples_per_pixel);
     center = look_from;
 
@@ -26,4 +28,41 @@ void Camera::initialize()
 
     Vec3 viewport_upper_left = center - (focal_length * w) - viewport_u / 2.0f - viewport_v / 2.0f;
     pixel00_location = viewport_upper_left + 0.5f * (pixel_delta_u + pixel_delta_v);
+}
+
+void Camera::render(const Hittable& world)
+{
+    initialize();
+
+    std::ofstream output("output.ppm");
+    output << "P3\n" << m_image_width << " " << m_image_height << "\n255\n";
+
+    std::vector<std::string> scanlines = {};
+    scanlines.resize(m_image_width * m_image_height);
+
+    auto range = std::views::iota(0, m_image_height);
+
+    std::for_each(std::execution::par_unseq, range.begin(), range.end(), [&](int const k)
+    {
+        for (int i = 0; i < m_image_width; ++i)
+        {
+            Vec3 pixel_color;
+            for (int sample = 0; sample < m_samples_per_pixel; ++sample)
+            {
+                Ray ray = get_ray(i, k);
+                pixel_color += ray_color(ray, m_max_depth, world);
+            }
+
+            scanlines[k * m_image_width + i] = (pixel_color * pixel_samples_scale).to_string();
+        }
+    });
+
+    for (auto const& line : scanlines)
+    {
+        output << line;
+    }
+
+    output.close();
+
+    std::cout << "Done\n";
 }
