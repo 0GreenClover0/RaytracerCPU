@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "AABB.h"
 #include "AK/Interval.h"
 #include "AK/MathUtils.h"
 #include "AK/Vec3.h"
@@ -31,6 +32,14 @@ public:
     {
         return false;
     }
+
+    [[nodiscard]] AABB bounding_box() const
+    {
+        return m_bbox;
+    }
+
+protected:
+    AABB m_bbox;
 };
 
 class Material

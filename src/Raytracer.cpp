@@ -2,6 +2,7 @@
 
 #include "AK/MathUtils.h"
 #include "AK/Vec3.h"
+#include "BVHNode.h"
 #include "Camera.h"
 #include "HittableList.h"
 #include "Sphere.h"
@@ -56,11 +57,13 @@ void Raytracer::run()
     auto material3 = std::make_shared<Metal>(Vec3(0.7f, 0.6f, 0.5f), 0.0f);
     world.add(std::make_shared<Sphere>(Vec3(4.0f, 1.0f, 0.0f), 1.0f, material3));
 
+    m_root = std::make_shared<BVHNode>(world.hittables, 0, world.hittables.size());
+
     Camera camera(100, 50);
     camera.vertical_fov = 20.0f;
     camera.look_from = Vec3(13.0f, 2.0f, 3.0f);
     camera.look_at = Vec3(0.0f, 0.0f, 0.0f);
     camera.v_up = Vec3(0.0f, 1.0f, 0.0f);
 
-    camera.render(world);
+    camera.render(m_root);
 }

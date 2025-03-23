@@ -18,6 +18,12 @@ public:
     {
     }
 
+    Interval(const Interval& a, const Interval& b)
+    {
+        min = a.min <= b.min ? a.min : b.min;
+        max = a.max >= b.max ? a.max : b.max;
+    }
+
     float size() const
     {
         return max - min;
@@ -33,13 +39,13 @@ public:
         return min < x && x < max;
     }
 
-    static Interval empty()
+    Interval expand(float const delta) const
     {
-        return {FLT_MAX, FLT_MIN};
+        float const padding = delta / 2.0f;
+
+        return Interval(min - padding, max + padding);
     }
 
-    static Interval whole()
-    {
-        return {FLT_MIN, FLT_MAX};
-    }
+    static Interval const empty;
+    static Interval const whole;
 };

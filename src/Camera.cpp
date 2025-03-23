@@ -30,7 +30,7 @@ void Camera::initialize()
     pixel00_location = viewport_upper_left + 0.5f * (pixel_delta_u + pixel_delta_v);
 }
 
-void Camera::render(const Hittable& world)
+void Camera::render(const std::shared_ptr<BVHNode>& root)
 {
     initialize();
 
@@ -50,7 +50,7 @@ void Camera::render(const Hittable& world)
             for (int sample = 0; sample < m_samples_per_pixel; ++sample)
             {
                 Ray ray = get_ray(i, k);
-                pixel_color += ray_color(ray, m_max_depth, world);
+                pixel_color += ray_color(ray, m_max_depth, root);
             }
 
             scanlines[k * m_image_width + i] = (pixel_color * pixel_samples_scale).to_string();

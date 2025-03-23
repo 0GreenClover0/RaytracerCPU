@@ -10,6 +10,11 @@ static float radians(const float degrees)
     return degrees * (M_PI / 180.0f);
 }
 
+static int random_int(int min, int max)
+{
+    return min + rand() % (max - min + 1);
+}
+
 static float random_float()
 {
     return static_cast<float>(rand()) / static_cast <float>(RAND_MAX);

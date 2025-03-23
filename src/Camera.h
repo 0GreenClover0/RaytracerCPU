@@ -8,6 +8,8 @@
 
 #include <fstream>
 
+#include "BVHNode.h"
+
 class Camera
 {
 public:
@@ -22,7 +24,7 @@ public:
     {
     }
 
-    void render(const Hittable& world);
+    void render(const std::shared_ptr<BVHNode>& root);
 
 private:
     static constexpr float m_aspect_ratio = 16.0f / 9.0f;
@@ -40,12 +42,13 @@ private:
     Vec3 u = {}, v = {}, w = {};
 
     void initialize();
-    Vec3 ray_color(const Ray& ray, int depth, const Hittable& world) const;
+    Vec3 ray_color(const Ray& ray, int depth, const std::shared_ptr<BVHNode>& root) const;
+    bool hit(Ray const& ray, Interval const ray_t, HitRecord& hit_record, const std::shared_ptr<BVHNode>& root) const;
     Ray get_ray(int i, int k) const;
     Vec3 sample_square() const;
 };
 
-inline Vec3 Camera::ray_color(const Ray& ray, int depth, const Hittable& world) const
+inline Vec3 Camera::ray_color(const Ray& ray, int depth, const std::shared_ptr<BVHNode>& root) const
 {
     if (depth <= 0)
     {
@@ -53,13 +56,13 @@ inline Vec3 Camera::ray_color(const Ray& ray, int depth, const Hittable& world) 
     }
 
     HitRecord hit_record;
-    if (world.hit(ray, Interval(0.001f, std::numeric_limits<float>::max()), hit_record))
+    if (hit(ray, Interval(0.001f, std::numeric_limits<float>::max()), hit_record, root))
     {
         Ray scattered;
         Vec3 attenuation;
         if (hit_record.material->scatter(ray, hit_record, attenuation, scattered))
         {
-            return attenuation * ray_color(scattered, depth - 1, world);
+            return attenuation * ray_color(scattered, depth - 1, root);
         }
 
         return {};
@@ -68,6 +71,21 @@ inline Vec3 Camera::ray_color(const Ray& ray, int depth, const Hittable& world) 
     Vec3 unit_direction = ray.direction().normalize();
     float a = 0.5f * (unit_direction.y + 1.0f);
     return (1.0f - a) * Vec3(1.0f, 1.0f, 1.0f) + a * Vec3(0.5f, 0.7f, 1.0f);
+}
+
+inline bool Camera::hit(Ray const& ray, Interval const ray_t, HitRecord& hit_record, const std::shared_ptr<BVHNode>& root) const
+{
+    HitRecord temp_record = {};
+
+    bool hit_anything = false;
+
+    if (root->hit(ray, Interval(ray_t.min, ray_t.max), temp_record))
+    {
+        hit_anything = true;
+        hit_record = temp_record;
+    }
+
+    return hit_anything;
 }
 
 inline Ray Camera::get_ray(int i, int k) const

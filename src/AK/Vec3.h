@@ -45,8 +45,21 @@ public:
 
     Vec3& operator/=(float scalar);
 
+    float operator[](int const i) const;
+
     [[nodiscard]] std::string to_string() const;
 };
+
+inline float Vec3::operator[](int const i) const
+{
+    if (i == 0)
+        return x;
+
+    if (i == 1)
+        return y;
+
+    return z;
+}
 
 inline Vec3 operator+(const Vec3& lhs, const Vec3& rhs)
 {

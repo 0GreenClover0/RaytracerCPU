@@ -18,12 +18,13 @@ public:
 
     void clear()
     {
-        m_hittables.clear();
+        hittables.clear();
     }
 
     void add(std::shared_ptr<Hittable> const& hittable)
     {
-        m_hittables.emplace_back(hittable);
+        hittables.emplace_back(hittable);
+        m_bbox = AABB(m_bbox, hittable->bounding_box());
     }
 
     virtual bool hit(const Ray& ray, Interval ray_t, HitRecord& hit_record) const override
@@ -32,7 +33,7 @@ public:
         bool hit_anything = false;
         float closest_so_far = ray_t.max;
 
-        for (const auto& hittable : m_hittables)
+        for (const auto& hittable : hittables)
         {
             if (hittable->hit(ray, Interval(ray_t.min, closest_so_far), temp_record))
             {
@@ -45,6 +46,5 @@ public:
         return hit_anything;
     }
 
-private:
-    std::vector<std::shared_ptr<Hittable>> m_hittables = {};
+    std::vector<std::shared_ptr<Hittable>> hittables = {};
 };
